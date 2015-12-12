@@ -1,0 +1,25 @@
+{
+  "name": "hk2015",
+  "version": "1.0.0",
+  "description": "HackKings 2015 hack",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Homletmoo/hk2015.git"
+  },
+  "keywords": [
+    "hack"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Homletmoo/hk2015/issues"
+  },
+  "homepage": "https://github.com/Homletmoo/hk2015#readme",
+  "dependencies": {
+    "irc": "^0.4.0"
+  }
+}
