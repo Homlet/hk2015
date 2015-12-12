@@ -2,8 +2,10 @@ var irc = require('irc');
 
 var clients = [];
 
-var addClient = function(nick, cb) {
-  var client = new irc.Client(server, nick, chans);
+var addClient = function(server, nick, chans, cb) {
+  var client = new irc.Client(server, nick, {
+    channels: chans
+  });
 
   client.addListener('error', function(message) {
     console.log('error: ', message);
