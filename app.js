@@ -55,7 +55,16 @@ app.get('/recieve', function(req, res) {
     } else {
       //create new client and user
       addClient('chat.freenode.net', req.query.originator, ['#hackkings'], function(id) {
-        res.sendStatus(200);
+        var user = new User({
+          number: req.query.originator,
+          channel: '#hackkings',
+          server: 'chat.freenode.net',
+          nick: req.query.originator,
+          clientId: id
+        });
+        user.save(function(err) {
+          res.sendStatus(200);
+        });
       });
     }
   });
