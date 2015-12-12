@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/Homletmoo/hk2015#readme",
   "dependencies": {
-    "irc": "^0.4.0"
+    "irc": "^0.4.0",
+    "messagebird": "^2.0.0"
   }
 }
