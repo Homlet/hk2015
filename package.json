@@ -1,7 +1,7 @@
 {
-  "name": "hk2015",
+  "name": "Zircon",
   "version": "1.0.0",
-  "description": "HackKings 2015 hack",
+  "description": "HackKings 2015 hack.",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
