@@ -1,5 +1,17 @@
 var irc = require('irc');
 var messagebird = require('messagebird')('live_c824ASBElBQE46yxKwzeK3e4a');
+var express = require('express');
+var app = express();
+var mongoose = require('mongoose');
+mongoose.connect('mongodb://localhost/zircon');
+
+var User = mongoose.model('User', {
+  number: String,
+  channel: String,
+  server: String,
+  nick: String,
+  clientId: Number
+});
 
 var clients = [];
 
@@ -35,6 +47,18 @@ var addClient = function(server, nick, chans, cb) {
   cb(clients.length - 1);
 };
 
-addClient('chat.freenode.net', 'hack156672', ['#hackkings'], function(id) {
-
+app.get('/recieve', function(req, res) {
+  User.findOne({ number: req.query.originator }, function(err, user) {
+    if(user) {
+      clients[user.clientId].say(user.channel, req.query.message);
+      res.sendStatus(200);
+    } else {
+      //create new client and user
+      addClient('chat.freenode.net', req.query.originator, ['#hackkings'], function(id) {
+        res.sendStatus(200);
+      });
+    }
+  });
 });
+
+app.listen(8000);
