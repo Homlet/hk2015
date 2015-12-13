@@ -107,6 +107,7 @@ app.get('/recieve', function(req, res) {
                 matchedCommand = matchedCommand.substr(1, matchedCommand.length);
                 user[matchedCommand] = matchedOption;
                 user.save();
+                clients[user.clientId].send('NICK', user.nick);
                 console.log(user);
               }
             }
