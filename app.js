@@ -1,11 +1,9 @@
 var irc = require('irc');
-var messagebird = require('messagebird')('live_c824ASBElBQE46yxKwzeK3e4a');
+var messagebird = require('messagebird')('live_keyzEIfbtolazqcT4DOeHbyY7');
 var express = require('express');
 var app = express();
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/zircon');
-
-var originator = '+447860039362';
 
 var User = mongoose.model('User', {
   number: String,
@@ -15,7 +13,20 @@ var User = mongoose.model('User', {
   clientId: Number
 });
 
+var originator = '+447860039362';
+
 var clients = [];
+
+var init = function() {
+  User.find({}, function(err, users) {
+    users.forEach(function(user) {
+      addClient(user.server, user.nick, [user.channel], function(id) {
+        user.clientId = id;
+        user.save();
+      });
+    });
+  });
+}
 
 var addClient = function(server, nick, chans, cb) {
   var client = new irc.Client(server, nick, {
@@ -110,11 +121,12 @@ app.get('/recieve', function(req, res) {
       res.sendStatus(200);
     } else {
       //create new client and user
-      addClient('chat.freenode.net', req.query.originator, ['#hackkings'], function(id) {
+      addClient('chat.freenode.net', ('HackKings' + clients.length), ['#hackkings'], function(id) {
         var user = new User({
           number: req.query.originator,
           server: 'chat.freenode.net',
-          nick: 'zircon' + req.query.originator,
+          nick: 'HackKings' + id,
+          channel: '#hackkings',
           clientId: id
         });
         user.save(function(err) {
@@ -126,7 +138,7 @@ app.get('/recieve', function(req, res) {
           'recipients': [
             req.query.originator
           ],
-          'body': "Welcome to Zircon! By default, you've been connected to chat.freenode.net and your nickname is your phone number. To connect to a channel, reply to this message with the /channel command. For information, reply /help."
+          'body': "Welcome to Zircon! By default, you've been connected to chat.freenode.net and your nickname is " + user.nick + ". To connect to a channel, reply to this message with the /channel command. For information, reply /help."
         };
         messagebird.messages.create(params, function (err, response) {
           if (err) {
@@ -138,5 +150,7 @@ app.get('/recieve', function(req, res) {
     }
   });
 });
+
+init();
 
 app.listen(8000);
