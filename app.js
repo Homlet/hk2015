@@ -27,9 +27,9 @@ var addClient = function(server, nick, chans, cb) {
   client.addListener('message', function (from, to, message) {
     console.log(from + ' => ' + to + ': ' + message);
     var params = {
-      'originator': 'Hackkings',
+      'originator': 'Zircon',
       'recipients': [
-        '+4407895331096'
+        user.number;
       ],
       'body': from + ': ' + message
     };
