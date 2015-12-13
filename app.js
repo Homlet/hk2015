@@ -15,6 +15,17 @@ var User = mongoose.model('User', {
 
 var clients = [];
 
+var init = function() {
+  User.find({}, function(err, users) {
+    users.forEach(function(user) {
+      addClient(user.server, user.nick, [user.channel], function(id) {
+        user.clientId = id;
+        user.save();
+      });
+    });
+  })
+}
+
 var addClient = function(server, nick, chans, cb) {
   var client = new irc.Client(server, nick, {
     channels: chans
@@ -136,5 +147,7 @@ app.get('/recieve', function(req, res) {
     }
   });
 });
+
+init();
 
 app.listen(8000);
