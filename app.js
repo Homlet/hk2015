@@ -5,6 +5,9 @@ var app = express();
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/zircon');
 
+var originator = '+447860039362';
+
+
 var User = mongoose.model('User', {
   number: String,
   channel: String,
@@ -40,7 +43,7 @@ var addClient = function(server, nick, chans, cb) {
     var params = {
       'originator': 'Zircon',
       'recipients': [
-        user.number;
+        user.number
       ],
       'body': from + ': ' + message
     };
