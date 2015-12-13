@@ -50,6 +50,17 @@ var addClient = function(server, nick, chans, cb) {
 app.get('/recieve', function(req, res) {
   User.findOne({ number: req.query.originator }, function(err, user) {
     if(user) {
+      //check for commands
+      if(b = req.query.message.search(/^\/\w+/)) {
+        commands = ['/server', '/channel', '/nick', '/help'];
+        commands.forEach(function(command) {
+          if(command == b) {
+            console.log('command found: ' + b);
+          }
+        });
+      }
+
+      req.query.message.match(/^\/\w+/);
       clients[user.clientId].say(user.channel, req.query.message);
       res.sendStatus(200);
     } else {
@@ -57,7 +68,6 @@ app.get('/recieve', function(req, res) {
       addClient('chat.freenode.net', req.query.originator, ['#hackkings'], function(id) {
         var user = new User({
           number: req.query.originator,
-          channel: '#hackkings',
           server: 'chat.freenode.net',
           nick: req.query.originator,
           clientId: id
@@ -65,9 +75,25 @@ app.get('/recieve', function(req, res) {
         user.save(function(err) {
           res.sendStatus(200);
         });
+        //send welcome message
+        var params = {
+          'originator': 'Zircon',
+          'recipients': [
+            req.query.originator
+          ],
+          'body': "Welcome to Zircon! By default, you've been connected to chat.freenode.net and your nickname is your phone number. To connect to a channel, reply to this message with the /channel command. For information, reply /help."
+        };
+        messagebird.messages.create(params, function (err, response) {
+          if (err) {
+            return console.log(err);
+          }
+          console.log(response);
+        });
       });
     }
   });
 });
 
 app.listen(8000);
+
+//    /\s.+/
