@@ -30,7 +30,8 @@ var init = function() {
 }
 
 var addClient = function(server, nick, chans, cb) {
-  var client = new irc.Client(server, nick, {
+  console.log(server, nick, chans);
+  var client = new irc.Client(server, 'HKzircon' + String(clients.length), {
     channels: chans
   });
 
@@ -122,11 +123,12 @@ app.get('/recieve', function(req, res) {
       res.sendStatus(200);
     } else {
       //create new client and user
-      addClient('chat.freenode.net', req.query.originator, ['#hackkings'], function(id) {
+      addClient('chat.freenode.net', 'zircon' + req.query.originator, ['#hackkings'], function(id) {
         var user = new User({
           number: req.query.originator,
           server: 'chat.freenode.net',
-          nick: 'zircon' + req.query.originator,
+          channel: '#hackkings',
+          nick: 'HKzircon' + id,
           clientId: id
         });
         user.save(function(err) {
