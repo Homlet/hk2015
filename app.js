@@ -48,20 +48,63 @@ var addClient = function(server, nick, chans, cb) {
 };
 
 app.get('/recieve', function(req, res) {
+  console.log(clients.length);
   User.findOne({ number: req.query.originator }, function(err, user) {
     if(user) {
       //check for commands
-      if(b = req.query.message.search(/^\/\w+/)) {
+      if(req.query.message.search(/^\/\w+/) == 0) {
         commands = ['/server', '/channel', '/nick', '/help'];
+        matchedCommand = req.query.message.match(/^\/\w+/)[0];
         commands.forEach(function(command) {
-          if(command == b) {
-            console.log('command found: ' + b);
+          if(command == matchedCommand) {
+            if(matchedCommand == '/help') {
+              var params = {
+                'originator': 'Zircon',
+                'recipients': [
+                  req.query.originator
+                ],
+                'body': "Commands availible: \n /server [server name] \n /channel [channel name] \n /nick [desired nickname] \n Please note that you can only be connected to one server and channel at a time."
+              };
+              messagebird.messages.create(params, function (err, response) {
+                if (err) {
+                  return console.log(err);
+                }
+                console.log(response);
+              });
+            } else {
+              matchedOption = req.query.message.match(/\s.+/);
+              if(matchedOption == null) {
+                //send welcome message
+                var params = {
+                  'originator': 'Zircon',
+                  'recipients': [
+                    req.query.originator
+                  ],
+                  'body': "Command syntax: " + matchedCommand + " [" + matchedCommand + " name]"
+                };
+                messagebird.messages.create(params, function (err, response) {
+                  if (err) {
+                    return console.log(err);
+                  }
+                  console.log(response);
+                });
+              } else {
+                matchedOption = matchedOption[0].trim();
+                //get rid of leading / on matched command
+                matchedCommand = matchedCommand.substr(1, matchedCommand.length);
+                user[matchedCommand] = matchedOption;
+                user.save();
+                console.log(user);
+              }
+            }
           }
         });
+      } else {
+        //message not a command - so send it to IRC!
+        console.log(user.clientId);
+        console.log(clients.length);
+        clients[user.clientId].say(user.channel, req.query.message);
       }
-
-      req.query.message.match(/^\/\w+/);
-      clients[user.clientId].say(user.channel, req.query.message);
       res.sendStatus(200);
     } else {
       //create new client and user
@@ -69,7 +112,7 @@ app.get('/recieve', function(req, res) {
         var user = new User({
           number: req.query.originator,
           server: 'chat.freenode.net',
-          nick: req.query.originator,
+          nick: 'zircon' + req.query.originator,
           clientId: id
         });
         user.save(function(err) {
@@ -95,5 +138,3 @@ app.get('/recieve', function(req, res) {
 });
 
 app.listen(8000);
-
-//    /\s.+/
