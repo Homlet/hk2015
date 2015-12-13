@@ -7,7 +7,6 @@ mongoose.connect('mongodb://localhost/zircon');
 
 var originator = '+447860039362';
 
-
 var User = mongoose.model('User', {
   number: String,
   channel: String,
@@ -18,20 +17,8 @@ var User = mongoose.model('User', {
 
 var clients = [];
 
-var init = function() {
-  User.find({}, function(err, users) {
-    users.forEach(function(user) {
-      addClient(user.server, user.nick, [user.channel], function(id) {
-        user.clientId = id;
-        user.save();
-      });
-    });
-  })
-}
-
 var addClient = function(server, nick, chans, cb) {
-  console.log(server, nick, chans);
-  var client = new irc.Client(server, 'HKzircon' + String(clients.length), {
+  var client = new irc.Client(server, nick, {
     channels: chans
   });
 
@@ -42,9 +29,9 @@ var addClient = function(server, nick, chans, cb) {
   client.addListener('message', function (from, to, message) {
     console.log(from + ' => ' + to + ': ' + message);
     var params = {
-      'originator': 'Zircon',
+      'originator': originator,
       'recipients': [
-        user.number
+        '+4407895331096'
       ],
       'body': from + ': ' + message
     };
@@ -74,7 +61,7 @@ app.get('/recieve', function(req, res) {
           if(command == matchedCommand) {
             if(matchedCommand == '/help') {
               var params = {
-                'originator': 'Zircon',
+                'originator': originator,
                 'recipients': [
                   req.query.originator
                 ],
@@ -91,7 +78,7 @@ app.get('/recieve', function(req, res) {
               if(matchedOption == null) {
                 //send welcome message
                 var params = {
-                  'originator': 'Zircon',
+                  'originator': originator,
                   'recipients': [
                     req.query.originator
                   ],
@@ -123,12 +110,11 @@ app.get('/recieve', function(req, res) {
       res.sendStatus(200);
     } else {
       //create new client and user
-      addClient('chat.freenode.net', 'zircon' + req.query.originator, ['#hackkings'], function(id) {
+      addClient('chat.freenode.net', req.query.originator, ['#hackkings'], function(id) {
         var user = new User({
           number: req.query.originator,
           server: 'chat.freenode.net',
-          channel: '#hackkings',
-          nick: 'HKzircon' + id,
+          nick: 'zircon' + req.query.originator,
           clientId: id
         });
         user.save(function(err) {
@@ -136,7 +122,7 @@ app.get('/recieve', function(req, res) {
         });
         //send welcome message
         var params = {
-          'originator': 'Zircon',
+          'originator': originator,
           'recipients': [
             req.query.originator
           ],
@@ -152,7 +138,5 @@ app.get('/recieve', function(req, res) {
     }
   });
 });
-
-init();
 
 app.listen(8000);
