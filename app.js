@@ -39,20 +39,22 @@ var addClient = function(server, nick, chans, cb) {
 
   client.addListener('message', function (from, to, message) {
     console.log(from + ' => ' + to + ': ' + message);
-    var params = {
-      'originator': originator,
-      'recipients': [
-        '+4407895331096'
-      ],
-      'body': from + ': ' + message
-    };
+    if(from != user.nick) {
+      var params = {
+        'originator': originator,
+        'recipients': [
+          user.number
+        ],
+        'body': from + ': ' + message
+      };
 
-    messagebird.messages.create(params, function (err, response) {
-      if (err) {
-        return console.log(err);
-      }
-      console.log(response);
-    });
+      messagebird.messages.create(params, function (err, response) {
+        if (err) {
+          return console.log(err);
+        }
+        console.log(response);
+      });
+    }
   });
 
   clients.push(client);
@@ -139,7 +141,7 @@ app.get('/recieve', function(req, res) {
           'recipients': [
             req.query.originator
           ],
-          'body': "Welcome to Zircon! By default, you've been connected to chat.freenode.net and your nickname is " + user.nick + ". To connect to a channel, reply to this message with the /channel command. For information, reply /help."
+          'body': "Welcome to Zircon! By default, you've been connected to chat.freenode.net #hackkngs and your nickname is " + user.nick + ". Use /nick to change your nickname and reply /help for for info."
         };
         messagebird.messages.create(params, function (err, response) {
           if (err) {
