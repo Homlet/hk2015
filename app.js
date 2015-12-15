@@ -20,7 +20,7 @@ var clients = [];
 var init = function() {
   User.find({}, function(err, users) {
     users.forEach(function(user) {
-      addClient(user.server, user.nick, [user.channel], function(id) {
+      addClient(user.server, user.nick, [user.channel], user.number, function(id) {
         user.clientId = id;
         user.save();
       });
@@ -28,7 +28,7 @@ var init = function() {
   });
 }
 
-var addClient = function(server, nick, chans, cb) {
+var addClient = function(server, nick, chans, number, cb) {
   var client = new irc.Client(server, nick, {
     channels: chans
   });
@@ -39,11 +39,11 @@ var addClient = function(server, nick, chans, cb) {
 
   client.addListener('message', function (from, to, message) {
     console.log(from + ' => ' + to + ': ' + message);
-    if(from != user.nick) {
+    if(from != nick) {
       var params = {
         'originator': originator,
         'recipients': [
-          user.number
+          number
         ],
         'body': from + ': ' + message
       };
@@ -124,7 +124,7 @@ app.get('/recieve', function(req, res) {
       res.sendStatus(200);
     } else {
       //create new client and user
-      addClient('chat.freenode.net', ('HackKings' + clients.length), ['#hackkings'], function(id) {
+      addClient('chat.freenode.net', ('HackKings' + clients.length), ['#hackkings'], req.query.originator, function(id) {
         var user = new User({
           number: req.query.originator,
           server: 'chat.freenode.net',
