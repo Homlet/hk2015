@@ -1,4 +1,4 @@
-SIRCMSZ
-=======
+Zircon
+======
 
-Standard Internet Relay Chat Messaging Service Zen
+A tool for forwarding IRC messages to SMS.
